@@ -36,6 +36,7 @@
 #include <asm/armv7.h>
 #include "common_setup.h"
 #include "exynos5_setup.h"
+#include <asm/arch/itop4412_tool.h>
 
 /* These are the things we can do during low-level init */
 enum {
@@ -212,6 +213,11 @@ int do_lowlevel_init(void)
 
 	if (actions & DO_POWER)
 		set_ps_hold_ctrl();
+#if 0
+	// for test power
+	itop4412SetLedStatus(1);
+	while(1);
+#endif
 
 	if (actions & DO_CLOCKS) {
 		system_clock_init();

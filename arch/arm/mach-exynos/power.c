@@ -162,6 +162,16 @@ static void exynos5_set_ps_hold_ctrl(void)
 			EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
 }
 
+static void exynos4_set_ps_hold_ctrl(void)
+{
+#define PS_HOLD_CONTROL (*(volatile unsigned int *)0x1002330C)
+#define GPX0PUD (*(volatile unsigned int *)0x11000c08)
+	PS_HOLD_CONTROL = 0x300;
+	GPX0PUD = GPX0PUD & (~0x30);
+	return;
+}
+
+
 /*
  * Set ps_hold data driving value high
  * This enables the machine to stay powered on
@@ -172,6 +182,8 @@ void set_ps_hold_ctrl(void)
 {
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
+	if (cpu_is_exynos4())
+		exynos4_set_ps_hold_ctrl();
 }
 
 
