@@ -80,7 +80,7 @@
 #define CONFIG_CLK_1000_400_200
 
 /* MIU (Memory Interleaving Unit) */
-#define CONFIG_MIU_2BIT_21_7_INTERLEAVED
+#define CONFIG_MIU_4KBIT_INTERLEAVED
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
