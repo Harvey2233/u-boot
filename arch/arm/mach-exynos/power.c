@@ -253,7 +253,7 @@ static void exynos4_power_exit_wakeup(void)
 	struct exynos4_power *power =
 		(struct exynos4_power *)samsung_get_base_power();
 	typedef void (*resume_func)(void);
-
+	// inform0的值应该是BL1写进去的函数指针
 	((resume_func)power->inform0)();
 }
 
