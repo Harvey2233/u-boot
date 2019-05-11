@@ -89,6 +89,25 @@ void itop4412PutStr(char* p)
 	}
 }
 
+void itop4412PutNum(unsigned int num)
+{
+	char ch;
+	signed char i;
+	for (i = 28; i >=0; i-=4)
+	{
+		ch = ((num & (0xf << i)) >> i);
+		if (ch <= 0x9)
+		{
+			ch += '0';
+		}
+		else
+		{
+			ch = ch - 0xa + 'A';
+		}
+	 	itop4412PutChar(ch);
+	}	
+}
+
 void itop4412TestMemory(void)
 {
 #define DMC0_BASE (unsigned char *)0x40000000
@@ -145,4 +164,11 @@ void itop4412TestMemory(void)
 	
 	itop4412LedBlink(5);
 	return;
+}
+
+unsigned int itop4412GetPc(void)
+{
+	unsigned int pc_addr = 0;
+	__asm__ __volatile__("mov %0, pc" :"=r"(pc_addr)::);
+	return pc_addr;
 }

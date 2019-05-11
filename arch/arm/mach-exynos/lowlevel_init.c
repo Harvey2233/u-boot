@@ -218,9 +218,10 @@ int do_lowlevel_init(void)
 	itop4412SetLedStatus(1);
 	while(1);
 #endif
-
+	itop4412InitUart();
 	if (actions & DO_CLOCKS) {
 		system_clock_init();
+		itop4412PutStr("Init system clock!!!\n");
 #ifdef CONFIG_DEBUG_UART
 #if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL_SUPPORT)) || \
     !defined(CONFIG_SPL_BUILD)
@@ -229,6 +230,7 @@ int do_lowlevel_init(void)
 #endif
 #endif
 		mem_ctrl_init(actions & DO_MEM_RESET);
+		itop4412PutStr("Init DMC!!!\n");
 		tzpc_init();
 	}
 

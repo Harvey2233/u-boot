@@ -17,6 +17,7 @@
 
 #include "common_setup.h"
 #include "clock_init.h"
+#include <asm/arch/itop4412_tool.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -182,6 +183,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 */
 void copy_uboot_to_ram(void)
 {
+	unsigned int pc_addr; 
 	unsigned int bootmode = BOOT_MODE_OM;
 
 	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst) = NULL;
@@ -224,6 +226,7 @@ void copy_uboot_to_ram(void)
 		offset = BL2_START_OFFSET;
 		size = BL2_SIZE_BLOC_COUNT;
 		copy_bl2 = get_irom_func(MMC_INDEX);
+		itop4412PutStr("SD boot!!!\n");
 		break;
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case BOOT_MODE_EMMC:
@@ -252,7 +255,20 @@ void copy_uboot_to_ram(void)
 	default:
 		break;
 	}
-
+	itop4412PutStr("offset:0x");
+	itop4412PutNum(offset);
+	itop4412PutChar('\n');
+	itop4412PutStr("size:0x");
+	itop4412PutNum(size);
+	itop4412PutChar('\n');
+	itop4412PutStr("dst addr:0x");
+	itop4412PutNum(CONFIG_SYS_TEXT_BASE);
+	itop4412PutChar('\n');
+	pc_addr = itop4412GetPc();
+	itop4412PutStr("pc addr:0x");
+	itop4412PutNum(pc_addr);
+	itop4412PutChar('\n');
+	
 	if (copy_bl2)
 		copy_bl2(offset, size, CONFIG_SYS_TEXT_BASE);
 }
@@ -293,7 +309,7 @@ void board_init_f(unsigned long bootflag)
 		power_exit_wakeup();
 
 	copy_uboot_to_ram();
-
+	itop4412PutStr("Copy uboot to ram!!!\n");
 	/* Jump to U-Boot image */
 	uboot = (void *)CONFIG_SYS_TEXT_BASE;
 	(*uboot)();
