@@ -183,7 +183,6 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 */
 void copy_uboot_to_ram(void)
 {
-	unsigned int pc_addr; 
 	unsigned int bootmode = BOOT_MODE_OM;
 
 	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst) = NULL;
@@ -226,7 +225,6 @@ void copy_uboot_to_ram(void)
 		offset = BL2_START_OFFSET;
 		size = BL2_SIZE_BLOC_COUNT;
 		copy_bl2 = get_irom_func(MMC_INDEX);
-		itop4412PutStr("SD boot!!!\n");
 		break;
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case BOOT_MODE_EMMC:
@@ -255,22 +253,65 @@ void copy_uboot_to_ram(void)
 	default:
 		break;
 	}
-	itop4412PutStr("offset:0x");
-	itop4412PutNum(offset);
-	itop4412PutChar('\n');
-	itop4412PutStr("size:0x");
-	itop4412PutNum(size);
-	itop4412PutChar('\n');
-	itop4412PutStr("dst addr:0x");
-	itop4412PutNum(CONFIG_SYS_TEXT_BASE);
-	itop4412PutChar('\n');
-	pc_addr = itop4412GetPc();
-	itop4412PutStr("pc addr:0x");
-	itop4412PutNum(pc_addr);
-	itop4412PutChar('\n');
-	
+#ifdef CONFIG_TARGET_ITOP4412
 	if (copy_bl2)
+	{
+		itop4412InitUart();
+		itop4412PutStr("Ready to copy uboot!!!\n");
+		// Here I use iram (0x02050000 ~ 0x02060000) 64K as a buffer
+		// to copy uboot to dram
+		unsigned int u32Index, u32CopyCount = 0;
+        unsigned char *pu8Buffer = (unsigned char *)0x02050000;
+        unsigned char *pu8Dst = (unsigned char *)CONFIG_SYS_TEXT_BASE, *pu8Tmp;
+        const unsigned int u32CopyStep = (0x10000 / 512);
+		int s32Ret;
+
+		for (u32CopyCount = 0; u32CopyCount < BL2_SIZE_BLOC_COUNT; u32CopyCount = u32CopyCount + u32CopyStep)
+		{
+			memset(pu8Buffer, 0x0, 0x10000);
+#if 0
+			itop4412PutStr("Before read sd card, section ");
+			itop4412PutNum32(BL2_START_OFFSET + u32CopyCount);
+			itop4412PutChar('\n');
+			//itop4412PutStr("pBuffer:\n");
+			//itop4412ReadMem(pu8Buffer, 0x10000);
+			//itop4412PutChar('\n');
+#endif
+			s32Ret = copy_bl2(BL2_START_OFFSET + u32CopyCount, u32CopyStep, pu8Buffer);
+			if (0 == s32Ret)
+			{
+				itop4412PutStr("copy_bl2 error!!!\n");
+			}
+#if 0
+			itop4412PutStr("after read sd card, section ");
+			itop4412PutNum32(BL2_START_OFFSET + u32CopyCount);
+			itop4412PutChar('\n');
+			//itop4412PutStr("pBuffer:\n");
+			//itop4412ReadMem(pu8Buffer, 0x10000);
+			//itop4412PutChar('\n');
+
+			pu8Tmp = pu8Dst;
+#endif
+			for (u32Index = 0; u32Index < 0x10000; u32Index++)
+			{
+				*pu8Dst++ = pu8Buffer[u32Index];
+			}
+#if 0
+			itop4412PutStr("after copy to dram, addr ");
+			itop4412PutNum32((unsigned int)pu8Tmp);
+			itop4412PutChar('\n');
+			//itop4412ReadMem(pu8Tmp, 0x10000);
+			//itop4412PutChar('\n');
+#endif
+		}
+		itop4412PutStr("copy uboot done!!!\n");
+	}
+#else
+	if (copy_bl2)
+	{
 		copy_bl2(offset, size, CONFIG_SYS_TEXT_BASE);
+	}
+#endif
 }
 
 void memzero(void *s, size_t n)
@@ -309,7 +350,6 @@ void board_init_f(unsigned long bootflag)
 		power_exit_wakeup();
 
 	copy_uboot_to_ram();
-	itop4412PutStr("Copy uboot to ram!!!\n");
 	/* Jump to U-Boot image */
 	uboot = (void *)CONFIG_SYS_TEXT_BASE;
 	(*uboot)();

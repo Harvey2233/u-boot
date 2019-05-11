@@ -46,7 +46,6 @@ void itop4412InitUart(void)
 	struct exynos4x12_uart volatile *pUartBase = (struct exynos4x12_uart volatile *)samsung_get_base_uart();
 	// itop4412 use uart2
 	struct exynos4x12_uart volatile *pUart = pUartBase + 2;
-
 	// set GPA1_0,GPA1_1 for uart2 mode
 	GPA1CON = GPA1CON & (~0xff);
 	GPA1CON = GPA1CON | (2 << 4) | (2 << 0);
@@ -66,7 +65,6 @@ void itop4412PutChar(char ch)
 	struct exynos4x12_uart volatile *pUartBase = (struct exynos4x12_uart volatile *)samsung_get_base_uart();
 	// itop4412 use uart2
 	struct exynos4x12_uart volatile *pUart = pUartBase + 2;
-
 	while(!(pUart->utrstat & (1 << 1)));
 	pUart->utxh = ch;
 	if ('\n' == ch)
@@ -89,11 +87,34 @@ void itop4412PutStr(char* p)
 	}
 }
 
-void itop4412PutNum(unsigned int num)
+void itop4412PutNum32(unsigned int num)
 {
 	char ch;
 	signed char i;
+	itop4412PutChar('0');
+	itop4412PutChar('x');
 	for (i = 28; i >=0; i-=4)
+	{
+		ch = ((num & (0xf << i)) >> i);
+		if (ch <= 0x9)
+		{
+			ch += '0';
+		}
+		else
+		{
+			ch = ch - 0xa + 'A';
+		}
+	 	itop4412PutChar(ch);
+	}	
+}
+
+void itop4412PutNum8(unsigned char num)
+{
+	char ch;
+	signed char i;
+	//itop4412PutChar('0');
+	//itop4412PutChar('x');
+	for (i = 4; i >=0; i-=4)
 	{
 		ch = ((num & (0xf << i)) >> i);
 		if (ch <= 0x9)
@@ -122,7 +143,7 @@ void itop4412TestMemory(void)
 	p = DMC0_BASE;
 	for (index = 0; index < DMC_CHIP_SIZE; index++)
 	{
-		*p = 0xff;
+		*p = 0xab;
 		p++;
 	}
 	itop4412PutStr("Write DMC0 done!!!\n");
@@ -130,7 +151,7 @@ void itop4412TestMemory(void)
 	p = DMC1_BASE;
 	for (index = 0; index < DMC_CHIP_SIZE; index++)
 	{
-		*p = 0xff;
+		*p = 0xab;
 		p++;
 	}
 
@@ -139,7 +160,7 @@ void itop4412TestMemory(void)
 	p = DMC0_BASE;
 	for (index = 0; index < DMC_CHIP_SIZE; index++)
 	{
-		if (0xff != *p)
+		if (0xab != *p)
 		{
 			itop4412PutStr("Check DMC0 error!!!\n");
 			while(1);
@@ -152,7 +173,7 @@ void itop4412TestMemory(void)
 	p = DMC1_BASE;
 	for (index = 0; index < DMC_CHIP_SIZE; index++)
 	{
-		if (0xff != *p)
+		if (0xab != *p)
 		{
 			itop4412PutStr("Check DMC1 error!!!\n");
 			while(1);
@@ -164,6 +185,24 @@ void itop4412TestMemory(void)
 	
 	itop4412LedBlink(5);
 	return;
+}
+
+void itop4412ReadMem(unsigned char *start, unsigned int size)
+{
+	unsigned int index;
+	itop4412PutStr("start read memory done!!!\n");
+	for (index = 0; index < size; index++)
+	{
+		if ((0 == index % 16))
+		{
+			itop4412PutChar('\n');
+		}
+		itop4412PutNum8(start[index]);
+		itop4412PutChar(' ');
+	}
+
+	itop4412PutChar('\n');
+	itop4412PutStr("Read memory done!!!\n");
 }
 
 unsigned int itop4412GetPc(void)

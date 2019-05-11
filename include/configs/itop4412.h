@@ -89,7 +89,7 @@
 #define BL2_SIZE				(16 << 10) /*16 K reserved for BL1*/
 #define UBOOT_SIZE				(350 << 10) /*350 K reserved for Uboot*/
 
-#define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE)
+#define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE + BL2_SIZE)
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 

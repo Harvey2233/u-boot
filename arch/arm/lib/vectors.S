@@ -85,25 +85,8 @@ _start:
 #ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
 	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
 #endif
-	mov r0, pc
-	mov r0, r0, lsr #24
-	teq r0, #0x02	
-	blne _led_on
 	ARM_VECTORS
 #endif /* !defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK) */
-
-_led_on:
-   // set GPX3CON
-   ldr r0, =#0x11000C60
-   ldr r1, [r0]
-   orr r1, r1, #0x10
-   str r1, [r0]
-   // set GPX3DAT
-   ldr r0, =#0x11000C64
-   ldr r1, [r0]
-   orr r1, r1, #0x02
-   str r1, [r0]
-   mov pc, lr
 
 /*
  *************************************************************************
