@@ -262,11 +262,11 @@ void copy_uboot_to_ram(void)
 		// to copy uboot to dram
 		unsigned int u32Index, u32CopyCount = 0;
         unsigned char *pu8Buffer = (unsigned char *)0x02050000;
-        unsigned char *pu8Dst = (unsigned char *)CONFIG_SYS_TEXT_BASE, *pu8Tmp;
+        unsigned char *pu8Dst = (unsigned char *)CONFIG_SYS_TEXT_BASE;
         const unsigned int u32CopyStep = (0x10000 / 512);
 		int s32Ret;
 
-		for (u32CopyCount = 0; u32CopyCount < BL2_SIZE_BLOC_COUNT; u32CopyCount = u32CopyCount + u32CopyStep)
+		for (u32CopyCount = 0; u32CopyCount < size; u32CopyCount = u32CopyCount + u32CopyStep)
 		{
 			memset(pu8Buffer, 0x0, 0x10000);
 #if 0
@@ -277,7 +277,7 @@ void copy_uboot_to_ram(void)
 			//itop4412ReadMem(pu8Buffer, 0x10000);
 			//itop4412PutChar('\n');
 #endif
-			s32Ret = copy_bl2(BL2_START_OFFSET + u32CopyCount, u32CopyStep, pu8Buffer);
+			s32Ret = copy_bl2(offset + u32CopyCount, u32CopyStep, (unsigned int)pu8Buffer);
 			if (0 == s32Ret)
 			{
 				itop4412PutStr("copy_bl2 error!!!\n");

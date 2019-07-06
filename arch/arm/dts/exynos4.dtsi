@@ -39,30 +39,35 @@
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13800000 0x3c>;
 		id = <0>;
+		status = "disabled";
 	};
 
 	serail_1: serial@13810000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13810000 0x3c>;
 		id = <1>;
+		status = "disabled";
 	};
 
 	serial_2: serial@13820000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13820000 0x3c>;
 		id = <2>;
+		status = "disabled";
 	};
 
 	serial_3: serial@13830000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13830000 0x3c>;
 		id = <3>;
+		status = "disabled";
 	};
 
 	serial_4: serial@13840000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13840000 0x3c>;
 		id = <4>;
+		status = "disabled";
 	};
 
 	i2c_0: i2c@13860000 {
